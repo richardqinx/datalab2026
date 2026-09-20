@@ -143,7 +143,7 @@ unsigned reverse(unsigned v) {
  *   Difficulty: 3
  */
 int logicalShift(int x, int n) {
-  return (x >> n) & ~(((1 << 31) >> n) << 1);
+    return (x >> n) & (~(!n + ~0) | (0x7FFFFFFF >> (n + ~0 + !n)));
 }
 
 /*
