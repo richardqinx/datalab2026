@@ -67,7 +67,28 @@ int samesign(int x, int y) {
  *   Difficulty: 4
  */
 int logtwo(int v) {
-    return 2;
+    int r = 0;
+    int s;
+
+    s = (v > 0xFFFF) << 4;
+    v = v >> s;
+    r = r | s;
+
+    s = (v > 0xFF) << 3;
+    v = v >> s;
+    r = r | s;
+
+    s = (v > 0xF) << 2;
+    v = v >> s;
+    r = r | s;
+
+    s = (v > 0x3) << 1;
+    v = v >> s;
+    r = r | s;
+
+    r = r | (v >> 1);
+
+    return r;
 }
 
 /*
