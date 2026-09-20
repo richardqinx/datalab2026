@@ -101,7 +101,19 @@ int logtwo(int v) {
  *    Difficulty: 2
  */
 int byteSwap(int x, int n, int m) {
-    return 2;
+  int ns = (n << 3) ;
+  int ms = (m << 3);
+  int nb = (x >> ns) & 0xFF;
+  int mb = (x >> ms) & 0xFF;
+
+  int mask = ~((0xFF << ns) | (0xFF <<  ms));
+
+  x = x & mask;
+
+  x = x | (nb << ms);
+  x = x | (mb << ns);
+
+  return x;
 }
 
 /*
