@@ -232,7 +232,25 @@ unsigned float_i2f(int x) {
  *   Difficulty: 4
  */
 unsigned floatScale2(unsigned uf) {
-    return 2;
+    unsigned sign;
+    unsigned exp;
+
+    sign = uf & 0x80000000;
+    exp = uf & 0x7F800000;
+
+    if (exp == 0x7F800000) {
+      return uf;
+    }
+
+    if (exp == 0) {
+      return sign | ((uf & 0x7FFFFFFF) << 1);
+    }
+
+    if (exp == 0x7F000000) {
+      return sign | 0x7F800000;
+    }
+
+    return uf + 0x00800000;
 }
 
 /*
