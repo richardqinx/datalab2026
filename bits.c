@@ -183,7 +183,67 @@ int leftBitCount(int x) {
  *   Difficulty: 4
  */
 unsigned float_i2f(int x) {
-    return 2;
+    int sign;
+    int mag;
+    int p;
+    int t;
+    int sig;
+    int frac;
+    int shift;
+    int rest;
+    int half;
+    int result;
+
+    if (x == 0)
+        return 0u;
+
+    if (x == ~0x7FFFFFFF)
+        return 0xCF000000u;
+
+    sign = 0;
+    if (x < 0) {
+        sign = 1;
+        mag = -x;
+    } else {
+        mag = x;
+    }
+
+    p = 0;
+    t = mag;
+    while (t > 1) {
+        t = t >> 1;
+        p = p + 1;
+    }
+
+    if (p < 24) {
+        sig = mag << (23 - p);
+    } else {
+        shift = p - 23;
+        sig = mag >> shift;
+
+        rest = mag - (sig << shift);
+        half = 1 << (shift - 1);
+
+        if (rest > half) {
+            sig = sig + 1;
+        } else if (rest == half) {
+            if (sig & 1)
+                sig = sig + 1;
+        }
+
+        if (sig >> 24) {
+            sig = sig >> 1;
+            p = p + 1;
+        }
+    }
+
+    frac = sig & 0x7FFFFF;
+    result = ((p + 127) << 23) | frac;
+
+    if (sign)
+        return 0x80000000u | result;
+
+    return result;
 }
 
 /*
