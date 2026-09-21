@@ -267,7 +267,34 @@ unsigned floatScale2(unsigned uf) {
  *   Difficulty: 3
  */
 int float64_f2i(unsigned uf1, unsigned uf2) {
-    return 2;
+    unsigned sign = uf2 >> 31;
+    unsigned exp = (uf2 >> 20) & 0x7FF;
+    int E;
+    int mant;
+    int mag;
+    int k;
+
+    if (exp < 1023){
+        return 0;
+    }
+    if (exp >= 1054){
+        return ~0x7FFFFFFF;
+    }
+
+    E = exp - 1023;
+    mant = (uf2 & 0xFFFFF) | 0x100000;
+
+    if (E <= 20) {
+      mag = mant >> (20 - E);
+    } else {
+      k = E - 20;
+      mag = (mant << k) | (uf1 >> (32 - k));
+    }
+
+    if (sign) {
+      return  -mag;
+    }
+    return mag;
 }
 
 /*
