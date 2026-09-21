@@ -183,67 +183,41 @@ int leftBitCount(int x) {
  *   Difficulty: 4
  */
 unsigned float_i2f(int x) {
-    int sign;
-    int mag;
-    int p;
-    int t;
-    int sig;
-    int frac;
-    int shift;
-    int rest;
-    int half;
-    int result;
+  unsigned a;
+  unsigned sign;
+  unsigned sig;
+  int p;
+  int s;
 
-    if (x == 0)
-        return 0u;
+    if (!x)
+        return 0;
 
-    if (x == ~0x7FFFFFFF)
-        return 0xCF000000u;
-
-    sign = 0;
     if (x < 0) {
-        sign = 1;
-        mag = -x;
+        sign = 0x80000000u;
+        a = ~x;
+        a = a + 1;
     } else {
-        mag = x;
+        a = x;
+        sign = 0;
     }
 
+    sig = a;
     p = 0;
-    t = mag;
-    while (t > 1) {
-        t = t >> 1;
+    while (sig >> 1) {
+        sig = sig >> 1;
         p = p + 1;
     }
 
     if (p < 24) {
-        sig = mag << (23 - p);
+        sig = a << (23 - p);
     } else {
-        shift = p - 23;
-        sig = mag >> shift;
-
-        rest = mag - (sig << shift);
-        half = 1 << (shift - 1);
-
-        if (rest > half) {
-            sig = sig + 1;
-        } else if (rest == half) {
-            if (sig & 1)
-                sig = sig + 1;
-        }
-
-        if (sig >> 24) {
-            sig = sig >> 1;
-            p = p + 1;
-        }
+        s = p - 23;
+        sig = (a + (1u << (s - 1)) - 1u
+                 + ((a >> s) & 1u)) >> s;
+        p = p + (sig >> 24);
     }
 
-    frac = sig & 0x7FFFFF;
-    result = ((p + 127) << 23) | frac;
-
-    if (sign)
-        return 0x80000000u | result;
-
-    return result;
+    return sign | ((p + 127) << 23) | (sig & 0x7FFFFF);
 }
 
 /*
@@ -251,7 +225,7 @@ unsigned float_i2f(int x) {
  *   floating point argument f.
  *   Both the argument and result are passed as unsigned int's, but
  *   they are to be interpreted as the bit-level representation of
- *   single-precision floating point values.
+ *   single-precision floating point values.p
  *   When argument is NaN, return argument
  *   Legal ops: & >> << | if > < >= <= ! ~ else + ==
  *   Max ops: 30
